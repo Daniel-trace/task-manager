@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Task</title>
+</head>
+<body>
+<h1>Edit Task</h1>
+<form th:action="@{'/tasks/' + ${task.id}}" th:object="${task}" method="post">
+    Title: <input type="text" th:field="*{title}"/><br/>
+    Description: <textarea th:field="*{description}"></textarea><br/>
+    Due Date: <input type="date" th:field="*{dueDate}"/><br/>
+
+    Priority:
+    <select th:field="*{priority}">
+        <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"
+                th:selected="${p == task.priority}"></option>
+    </select><br/>
+
+    Status:
+    <select th:field="*{status}">
+        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                th:selected="${s == task.status}"></option>
+    </select><br/>
+
+    <button type="submit">Update</button>
+</form>
+
+<form th:action="@{'/tasks/' + ${task.id} + '/delete'}" method="post">
+    <button type="submit">Delete</button>
+</form>
+</body>
+</html>

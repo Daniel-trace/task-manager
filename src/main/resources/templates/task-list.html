@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Task List</title>
+</head>
+<body>
+<h1>Task List</h1>
+
+<form method="get" th:action="@{/tasks}">
+    <label>Status:</label>
+    <select name="status">
+        <option value="">All</option>
+        <option th:each="s : ${T(com.example.taskmanager.model.Status).values()}"
+                th:value="${s}" th:text="${s}"></option>
+    </select>
+
+    <label>Priority:</label>
+    <select name="priority">
+        <option value="">All</option>
+        <option th:each="p : ${T(com.example.taskmanager.model.Priority).values()}"
+                th:value="${p}" th:text="${p}"></option>
+    </select>
+
+    <button type="submit">Filter</button>
+</form>
+
+<a href="/tasks/new">Add New Task</a>
+<table border="1">
+    <thead>
+    <tr><th>Title</th><th>Priority</th><th>Status</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+    <tr th:each="task : ${tasks}">
+        <td th:text="${task.title}"></td>
+        <td th:text="${task.priority}"></td>
+        <td th:text="${task.status}"></td>
+        <td>
+            <a th:href="@{'/tasks/' + ${task.id}}">Edit</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
