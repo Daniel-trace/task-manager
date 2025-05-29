@@ -33,23 +33,62 @@
             background-color: #0b5ed7;
             border-color: #0a58ca;
         }
-        .btn-success {
-            background-color: #198754;
-            border-color: #198754;
+        .btn-primary:disabled {
+            background-color: #adb5bd !important;
+            border-color: #adb5bd !important;
+            cursor: not-allowed;
         }
-        .btn-success:hover {
-            background-color: #157347;
-            border-color: #146c43;
+        .required-label::after {
+            content: " *";
+            color: red;
         }
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-        .btn-danger:hover {
-            background-color: #bb2d3b;
-            border-color: #b02a37;
-        }
+
     </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+            const saveButton = document.querySelector("button[type='submit']");
+
+            // Serialize form data with trimming, returns object
+            function serializeForm(form) {
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value.trim();
+                });
+                return data;
+            }
+
+            // Check if any form field has a non-empty value
+            function isAnyFieldFilled(data) {
+                return Object.values(data).some(value => value !== "");
+            }
+
+            // Initial check on page load
+            function checkForm() {
+                const data = serializeForm(form);
+                saveButton.disabled = !isAnyFieldFilled(data);
+            }
+
+            // Run initial check and add listeners
+            checkForm();
+
+            form.querySelectorAll("input, select, textarea").forEach(element => {
+                element.addEventListener("input", checkForm);
+                element.addEventListener("change", checkForm);
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const dueDateInput = document.querySelector("input[name='dueDate']");
+            if (dueDateInput) {
+                const today = new Date().toISOString().split("T")[0];
+                dueDateInput.min = today;
+            }
+        });
+    </script>
+
 </head>
 <body class="bg-light">
 <div class="container py-5">
@@ -61,7 +100,7 @@
             <div class="modal-body">
                 <form th:action="@{/tasks}" th:object="${task}" method="post">
                     <div class="mb-3">
-                        <label class="form-label">Title</label>
+                        <label class="form-label required-label">Title</label>
                         <input type="text" class="form-control" th:field="*{title}" required />
                         <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
                     </div>
@@ -71,7 +110,7 @@
                         <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Due Date</label>
+                        <label class="form-label required-label">Due Date</label>
                         <input type="date" class="form-control" th:field="*{dueDate}" required />
                         <div class="text-danger" th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}"></div>
                     </div>
@@ -88,6 +127,11 @@
                             <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
                         </select>
                         <div class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required-label">Assignee</label>
+                        <input type="text" class="form-control" th:field="*{assignee}" placeholder="Enter assignee name" required />
+                        <div class="text-danger" th:if="${#fields.hasErrors('assignee')}" th:errors="*{assignee}"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Save</button>
