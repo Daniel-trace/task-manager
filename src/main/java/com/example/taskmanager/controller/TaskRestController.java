@@ -7,6 +7,9 @@ import com.example.taskmanager.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +29,7 @@ public class TaskRestController {
     @GetMapping
     public List<Task> getAllTasks(@RequestParam(required = false) Status status,
                                   @RequestParam(required = false) Priority priority,
-                                  @RequestParam(required = false) String assignee) {
+                                  @RequestParam(required = false) String assignee){
         return taskService.getAll(status, priority, assignee);
     }
 
@@ -91,4 +94,25 @@ public class TaskRestController {
                                               @RequestParam(required = false) Priority priority) {
         return taskService.getAvailableAssignees(status, priority);
     }
+
+    @GetMapping("/paged")
+    public ResponseEntity<Page<Task>> getFilteredTasks(
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) Priority priority,
+            @RequestParam(required = false) String assignee,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "createdAt") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Task> tasksPage = taskService.getFilteredTasks(status, priority, assignee, search, sortField, sortDir, pageable);
+            return ResponseEntity.ok(tasksPage);
+        } catch (Exception e) {
+            logger.error("Error fetching paged filtered tasks", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 } 
